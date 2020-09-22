@@ -1,7 +1,7 @@
 import json
 import random
 import re
-from dataclasses import dataclass
+import types
 
 import streamlit as st
 
@@ -17,34 +17,30 @@ Fill in all the fields then click "Generate Story".
 # both initially, and then again when someone presses the "new story" button.
 # However, I don't want the random draw to change while the user is working.
 #
-# In order to do this, I use st.cache to create a singleton object that contains a global 
-# "serial number" that persists across recalculations. 
+# In order to do this, I use st.cache to create a "persistent namespace" object 
+# that contains a global "serial number" that persists across recalculations. 
 # 
 # THEN I wrap the random story picker in another st.cached function 
 # that takes as input the singleton serial number. And I have the "new story"
 # button increment that serial number, which invalidates the cached random story.
 
-@dataclass
-class Serial:
-    number: int = 0
-
 @st.cache(allow_output_mutation=True)
-def singleton():
-    return Serial()
+def persistent_namespace():
+    return types.SimpleNamespace(serial_number=0)
 
-serial = singleton()
+ns = persistent_namespace()
 
 with open('stories.json') as f:
     stories = json.load(f)
 
 if st.button("new story"):
-    serial.number += 1
+    ns.serial_number += 1
 
 @st.cache
 def new_story(i: int) -> str:
     return random.choice(stories)
 
-story = new_story(serial.number)
+story = new_story(ns.serial_number)
 
 
 pos = {
@@ -91,7 +87,6 @@ pos = {
  'food': 'Food',
  'liquid': 'Liquid',
  }
-
 
 
 regex = "<.*?::(.*?)/>"
