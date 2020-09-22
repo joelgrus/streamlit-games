@@ -99,7 +99,8 @@ for i, part in enumerate(parts):
     if i % 2 == 1:
         # remove ':'
         part = part.strip(':')
-        answer = st.text_input(pos.get(part, part), key=(serial.number, i))
+        # use two-part key so that new stories get new text boxes
+        answer = st.text_input(pos.get(part, part), key=(ns.serial_number, i))
 
         outparts.append(f"**{answer}**" if answer else "")
     else:
