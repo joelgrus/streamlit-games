@@ -1,7 +1,7 @@
 import json
 import random
 import re
-import types
+import dataclasses
 
 import streamlit as st
 
@@ -13,35 +13,26 @@ Fill in all the fields then click "Generate Story".
 """)
 
 
-# This is a double hack. Basically, I want to choose a random story
-# both initially, and then again when someone presses the "new story" button.
-# However, I don't want the random draw to change while the user is working.
-#
-# In order to do this, I use st.cache to create a "persistent namespace" object 
-# that contains a global "serial number" that persists across recalculations. 
-# 
-# THEN I wrap the random story picker in another st.cached function 
-# that takes as input the singleton serial number. And I have the "new story"
-# button increment that serial number, which invalidates the cached random story.
-
-@st.cache(allow_output_mutation=True)
-def persistent_namespace():
-    return types.SimpleNamespace(serial_number=0)
-
-ns = persistent_namespace()
-
 with open('stories.json') as f:
     stories = json.load(f)
 
+
+@dataclasses.dataclass
+class GameState:
+    story: str
+    game_number: int = 0
+
+
+@st.cache(allow_output_mutation=True)
+def persistent_game_state() -> GameState:
+    return GameState(random.choice(stories))
+
+state = persistent_game_state()
+
+
 if st.button("new story"):
-    ns.serial_number += 1
-
-@st.cache
-def new_story(i: int) -> str:
-    return random.choice(stories)
-
-story = new_story(ns.serial_number)
-
+    state.story = random.choice(stories)
+    state.game_number += 1
 
 pos = {
  'cc': 'Coordinating conjunction',
@@ -91,7 +82,7 @@ pos = {
 
 regex = "<.*?::(.*?)/>"
 
-parts = re.split(regex, story)
+parts = re.split(regex, state.story)
 
 outparts = []
 
@@ -100,7 +91,7 @@ for i, part in enumerate(parts):
         # remove ':'
         part = part.strip(':')
         # use two-part key so that new stories get new text boxes
-        answer = st.text_input(pos.get(part, part), key=(ns.serial_number, i))
+        answer = st.text_input(pos.get(part, part), key=(state.game_number, i))
 
         outparts.append(f"**{answer}**" if answer else "")
     else:
