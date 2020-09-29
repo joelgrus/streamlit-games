@@ -106,10 +106,11 @@ class GameState:
     game_over: bool = False
 
 @st.cache(allow_output_mutation=True)
-def persistent_game_state():
+def persistent_game_state(session_id: int):
     return GameState(0, random.choice(get_words()))
 
-state = persistent_game_state()
+session_id = st.report_thread.get_report_ctx().session_id
+state = persistent_game_state(session_id)
 
 if st.button("new game"):
     state.guessed = ()

@@ -28,11 +28,11 @@ class GameState:
 
 
 @st.cache(allow_output_mutation=True)
-def persistent_state() -> GameState:
+def persistent_game_state(session_id: int) -> GameState:
     return GameState(''.join(random.choices(DIGITS, k=4)))
 
-
-state = persistent_state()
+session_id = st.report_thread.get_report_ctx().session_id
+state = persistent_game_state(session_id)
 
 st.write("""MASTER MIND""")
 st.write(f"I, the computer, will choose a secret {K}-digit number "
