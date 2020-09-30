@@ -13,7 +13,7 @@ class GameState:
 
 
 @st.cache(allow_output_mutation=True)
-def persistent_game_state(session_id: int) -> GameState:
+def persistent_game_state(session_id: str) -> GameState:
     return GameState(random.randint(1, HI))
 
 session_id = st.report_thread.get_report_ctx().session_id

@@ -106,7 +106,7 @@ class GameState:
     game_over: bool = False
 
 @st.cache(allow_output_mutation=True)
-def persistent_game_state(session_id: int):
+def persistent_game_state(session_id: str):
     return GameState(0, random.choice(get_words()))
 
 session_id = st.report_thread.get_report_ctx().session_id
