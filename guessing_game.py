@@ -12,12 +12,14 @@ class GameState:
     game_over: bool = False
 
 
-@st.cache(allow_output_mutation=True)
-def persistent_game_state(session_id: str) -> GameState:
-    return GameState(random.randint(1, HI))
+def persistent_game_state() -> GameState:
+    session_id = st.report_thread.get_report_ctx().session_id
+    session = st.server.server.Server.get_current()._get_session_info(session_id).session
+    if not hasattr(session, '_gamestate'):
+        setattr(session, '_gamestate', GameState(random.randint(1, 1000)))
+    return session._gamestate
 
-session_id = st.report_thread.get_report_ctx().session_id
-state = persistent_game_state(session_id)
+state = persistent_game_state()
 
 if st.button("NEW GAME"):
     state.number = random.randint(1, HI)

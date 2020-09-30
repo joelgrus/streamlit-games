@@ -105,12 +105,15 @@ class GameState:
     step: int = 0
     game_over: bool = False
 
-@st.cache(allow_output_mutation=True)
-def persistent_game_state(session_id: str):
-    return GameState(0, random.choice(get_words()))
 
-session_id = st.report_thread.get_report_ctx().session_id
-state = persistent_game_state(session_id)
+def persistent_game_state():
+    session_id = st.report_thread.get_report_ctx().session_id
+    session = st.server.server.Server.get_current()._get_session_info(session_id).session
+    if not hasattr(session, '_gamestate'):
+        setattr(session, '_gamestate', GameState(0, random.choice(get_words())))
+
+
+state = persistent_game_state()
 
 if st.button("new game"):
     state.guessed = ()

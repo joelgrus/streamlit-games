@@ -26,13 +26,13 @@ class GameState:
     game_over: bool = False
 
 
+def persistent_game_state() -> GameState:
+    session_id = st.report_thread.get_report_ctx().session_id
+    session = st.server.server.Server.get_current()._get_session_info(session_id).session
+    if not hasattr(session, '_gamestate'):
+        setattr(session, '_gamestate', GameState(''.join(random.choices(DIGITS, k=4))))
 
-@st.cache(allow_output_mutation=True)
-def persistent_game_state(session_id: str) -> GameState:
-    return GameState(''.join(random.choices(DIGITS, k=4)))
-
-session_id = st.report_thread.get_report_ctx().session_id
-state = persistent_game_state(session_id)
+state = persistent_game_state()
 
 st.write("""MASTER MIND""")
 st.write(f"I, the computer, will choose a secret {K}-digit number "

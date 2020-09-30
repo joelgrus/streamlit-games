@@ -23,12 +23,13 @@ class GameState:
     game_number: int = 0
 
 
-@st.cache(allow_output_mutation=True)
-def persistent_game_state(session_id: str) -> GameState:
-    return GameState(random.choice(stories))
+def persistent_game_state() -> GameState:
+    session_id = st.report_thread.get_report_ctx().session_id
+    session = st.server.server.Server.get_current()._get_session_info(session_id).session
+    if not hasattr(session, '_gamestate'):
+        setattr(session, '_gamestate', GameState(random.choice(stories)))
 
-session_id = st.report_thread.get_report_ctx().session_id
-state = persistent_game_state(session_id)
+state = persistent_game_state()
 
 
 if st.button("new story"):
