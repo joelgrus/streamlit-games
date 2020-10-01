@@ -111,7 +111,7 @@ def persistent_game_state():
     session = st.server.server.Server.get_current()._get_session_info(session_id).session
     if not hasattr(session, '_gamestate'):
         setattr(session, '_gamestate', GameState(0, random.choice(get_words())))
-
+    return session._gamestate
 
 state = persistent_game_state()
 
