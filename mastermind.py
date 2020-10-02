@@ -4,6 +4,7 @@ import dataclasses
 
 import streamlit as st
 
+from gamestate import persistent_game_state
 
 DIGITS = ['0', '1', '2', '3', '4', '5']
 K = 4
@@ -25,15 +26,7 @@ class GameState:
     previous_guesses: Tuple[Guess, ...] = ()
     game_over: bool = False
 
-
-def persistent_game_state() -> GameState:
-    session_id = st.report_thread.get_report_ctx().session_id
-    session = st.server.server.Server.get_current()._get_session_info(session_id).session
-    if not hasattr(session, '_gamestate'):
-        setattr(session, '_gamestate', GameState(''.join(random.choices(DIGITS, k=4))))
-    return session._gamestate
-
-state = persistent_game_state()
+state = persistent_game_state(initial_state=GameState(''.join(random.choices(DIGITS, k=4))))
 
 st.write("""MASTER MIND""")
 st.write(f"I, the computer, will choose a secret {K}-digit number "

@@ -2,6 +2,8 @@ import streamlit as st
 import random
 import dataclasses
 
+from gamestate import persistent_game_state
+
 HI = 1000
 
 @dataclasses.dataclass
@@ -11,15 +13,7 @@ class GameState:
     game_number: int = 0
     game_over: bool = False
 
-
-def persistent_game_state() -> GameState:
-    session_id = st.report_thread.get_report_ctx().session_id
-    session = st.server.server.Server.get_current()._get_session_info(session_id).session
-    if not hasattr(session, '_gamestate'):
-        setattr(session, '_gamestate', GameState(random.randint(1, 1000)))
-    return session._gamestate
-
-state = persistent_game_state()
+state = persistent_game_state(initial_state=GameState(random.randint(1, 1000)))
 
 if st.button("NEW GAME"):
     state.number = random.randint(1, HI)

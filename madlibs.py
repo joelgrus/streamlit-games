@@ -5,6 +5,8 @@ import dataclasses
 
 import streamlit as st
 
+from gamestate import persistent_game_state
+
 st.markdown("""MAD LIBS
 
 (dataset is from [a Microsoft EMNLP paper](https://www.microsoft.com/en-us/download/details.aspx?id=55593))
@@ -22,15 +24,7 @@ class GameState:
     story: str
     game_number: int = 0
 
-
-def persistent_game_state() -> GameState:
-    session_id = st.report_thread.get_report_ctx().session_id
-    session = st.server.server.Server.get_current()._get_session_info(session_id).session
-    if not hasattr(session, '_gamestate'):
-        setattr(session, '_gamestate', GameState(random.choice(stories)))
-    return session._gamestate
-
-state = persistent_game_state()
+state = persistent_game_state(initial_state=GameState(random.choice(stories)))
 
 
 if st.button("new story"):

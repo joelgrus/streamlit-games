@@ -6,6 +6,7 @@ import dataclasses
 
 import streamlit as st
 
+from gamestate import persistent_game_state
 
 PROTOTYPE = """
  ┏━━┑
@@ -105,15 +106,7 @@ class GameState:
     step: int = 0
     game_over: bool = False
 
-
-def persistent_game_state():
-    session_id = st.report_thread.get_report_ctx().session_id
-    session = st.server.server.Server.get_current()._get_session_info(session_id).session
-    if not hasattr(session, '_gamestate'):
-        setattr(session, '_gamestate', GameState(0, random.choice(get_words())))
-    return session._gamestate
-
-state = persistent_game_state()
+state = persistent_game_state(initial_state=GameState(0, random.choice(get_words()))) 
 
 if st.button("new game"):
     state.guessed = ()
